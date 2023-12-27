@@ -1,0 +1,17 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Inria Sans', sans-serif;
+	color: #454753;
+}
+
+body {
+	background-color: #e8e8e8;
+}
+
+button,
+a {
+	cursor: pointer;
+	text-decoration: none;
+}
