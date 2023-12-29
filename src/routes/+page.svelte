@@ -1,3 +1,22 @@
+<script lang="ts">
+	let topicInput = '';
+
+	function updateTopic(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			joinTopic();
+		}
+
+		const value = (event.currentTarget as HTMLInputElement).value;
+		topicInput = value;
+	}
+
+	function joinTopic() {
+		if (topicInput.length > 0) {
+			window.location.href = '/topic/' + topicInput;
+		}
+	}
+</script>
+
 <div class="container">
 	<div class="item header">What do you want to talk about?</div>
 	<div class="item text">
@@ -5,10 +24,10 @@
 		share the same interest.
 	</div>
 	<div class="item">
-		<input id="topic-input" placeholder="Enter topic here..." />
+		<input id="topic-input" placeholder="Enter topic here..." type="text" on:keyup={updateTopic} />
 	</div>
 	<div class="item">
-		<button id="join-btn"> Let's Talk! </button>
+		<button id="join-btn" on:click={joinTopic}> Let's Talk! </button>
 	</div>
 </div>
 
