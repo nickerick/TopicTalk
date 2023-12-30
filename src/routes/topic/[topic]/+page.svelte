@@ -1,45 +1,85 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
+	import { afterUpdate } from 'svelte';
+	import type { Message } from '../../../models/Message';
 
+	// Set header as current chatroom's topic
 	let topic = $page.params.topic;
 	topic = topic.charAt(0).toUpperCase() + topic.slice(1);
+
+	// User's current input to be sent as a message
+	let messageInput: string = '';
+
+	// List of all messages in the user's current chatroom session
+	let messages: Message[] = [];
+
+	let messagesContainer: HTMLDivElement;
+
+	afterUpdate(() => {
+		// Auto scroll to bottom of messages
+		messagesContainer.scrollTop = messagesContainer.scrollHeight - messagesContainer.clientHeight;
+	});
+
+	// Update list with user's new message and broadcast message to socket
+	function sendMessage() {
+		if (messageInput.length <= 0) return;
+
+		let obj: Message = {
+			content: messageInput,
+			senderColorHex: '#FF0000',
+			senderUsername: 'RedRhino',
+			isSystem: false
+		};
+
+		messages = [...messages, obj];
+
+		messageInput = '';
+	}
 </script>
 
 <div class="container">
 	<div class="header">{topic}</div>
 	<div class="chatbox">
-		<div class="message-list">
-			<div class="message">System: User BlueRhino has joined the topic.</div>
-			<div class="message">BlueBobcat: Hello!</div>
-			<div class="message">BlueBobcat: What kind of music do you listen to?</div>
-			<div class="message">System: User YellowGiraffe has joined the topic.</div>
+		<div class="message-list" bind:this={messagesContainer}>
 			<div class="message">
-				YellowGiraffe: Hi everyone, I like country music, what about you guuys
+				<strong>
+					System: Joined topic as <span style="color: red;">RedRhino</span>
+				</strong>
 			</div>
-			<div class="message">
-				YellowGiraffe: Hi everyone, I like country music, what about you
-				guuysfasdfasdfasdfasdfasdfasdfasdfadsfasdfasdf
-			</div>
-			<div class="message">
+			<!-- <div class="message">
 				<strong>YellowGiraffe:</strong>
 				mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-			</div>
-			<div class="message">
-				YellowGiraffe:
-				mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-			</div>
-			<div class="message">
-				YellowGiraffe:
-				mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-			</div>
-			<div class="message">
-				YellowGiraffe:
-				mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-			</div>
+			</div> -->
+
+			{#each messages as message, i}
+				{#if message.isSystem}
+					<div class="message">
+						<strong
+							>System: <span style="color: {message.senderColorHex};">{message.senderUsername}</span
+							>
+							has {message.content} the topic</strong
+						>
+						{message.content}
+					</div>
+				{:else}
+					<p></p>
+				{/if}
+				<div class="message">
+					<strong style="color: {message.senderColorHex};">{message.senderUsername}:</strong>
+					{message.content}
+				</div>
+			{/each}
 		</div>
 		<div class="chat-input">
-			<input placeholder="Enter message..." maxlength="128" />
-			<button>Send</button>
+			<input
+				placeholder="Enter message..."
+				maxlength="128"
+				bind:value={messageInput}
+				on:keyup={(event) => {
+					if (event.key === 'Enter') sendMessage();
+				}}
+			/>
+			<button on:click={sendMessage}>Send</button>
 		</div>
 	</div>
 </div>
@@ -85,6 +125,8 @@
 		max-width: 100%;
 		padding: 0.2em;
 		overflow-y: auto;
+		/* display: flex; */
+		/* flex-direction: column-reverse; */
 	}
 
 	.message-list::-webkit-scrollbar {

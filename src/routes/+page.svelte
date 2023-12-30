@@ -1,7 +1,7 @@
 <script lang="ts">
-	let topicInput = '';
+	let topicInput: string = '';
 
-	function updateTopic(event: KeyboardEvent) {
+	function updateTopic(event: KeyboardEvent): void {
 		if (event.key === 'Enter') {
 			joinTopic();
 		}
@@ -10,7 +10,7 @@
 		topicInput = value.toLowerCase();
 	}
 
-	function joinTopic() {
+	function joinTopic(): void {
 		if (topicInput.length > 0) {
 			window.location.href = '/topic/' + topicInput;
 		}
