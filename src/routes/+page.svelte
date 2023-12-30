@@ -1,15 +1,6 @@
 <script lang="ts">
 	let topicInput: string = '';
 
-	function updateTopic(event: KeyboardEvent): void {
-		if (event.key === 'Enter') {
-			joinTopic();
-		}
-
-		const value = (event.currentTarget as HTMLInputElement).value;
-		topicInput = value.toLowerCase();
-	}
-
 	function joinTopic(): void {
 		if (topicInput.length > 0) {
 			window.location.href = '/topic/' + topicInput;
@@ -24,7 +15,16 @@
 		share the same interest.
 	</div>
 	<div class="item">
-		<input id="topic-input" placeholder="Enter topic here..." type="text" on:keyup={updateTopic} />
+		<input
+			id="topic-input"
+			placeholder="Enter topic here..."
+			type="text"
+			maxlength="20"
+			bind:value={topicInput}
+			on:keyup={(event) => {
+				if (event.key === 'Enter') joinTopic();
+			}}
+		/>
 	</div>
 	<div class="item">
 		<button id="join-btn" on:click={joinTopic}> Let's Talk! </button>
