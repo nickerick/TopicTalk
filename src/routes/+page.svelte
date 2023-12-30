@@ -7,7 +7,7 @@
 		}
 
 		const value = (event.currentTarget as HTMLInputElement).value;
-		topicInput = value;
+		topicInput = value.toLowerCase();
 	}
 
 	function joinTopic() {
@@ -36,12 +36,12 @@
 		margin: 10vh auto;
 		padding: 1em;
 		width: 50%;
-		height: 51vh;
+		height: 100%;
+        min-height: 51vh;
 		display: flex;
 		flex-direction: column;
 		background-color: #fefdfd;
-		border-radius: 1em;
-		overflow: auto;
+		border-radius: 1em
 	}
 
 	.item {
