@@ -59,15 +59,13 @@
 							>
 							has {message.content} the topic</strong
 						>
-						{message.content}
 					</div>
 				{:else}
-					<p></p>
+					<div class="message">
+						<strong style="color: {message.senderColorHex};">{message.senderUsername}:</strong>
+						{message.content}
+					</div>
 				{/if}
-				<div class="message">
-					<strong style="color: {message.senderColorHex};">{message.senderUsername}:</strong>
-					{message.content}
-				</div>
 			{/each}
 		</div>
 		<div class="chat-input">
