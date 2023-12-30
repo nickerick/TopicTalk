@@ -37,11 +37,11 @@
 		padding: 1em;
 		width: 50%;
 		height: 100%;
-        min-height: 51vh;
+		min-height: 51vh;
 		display: flex;
 		flex-direction: column;
 		background-color: #fefdfd;
-		border-radius: 1em
+		border-radius: 1em;
 	}
 
 	.item {
