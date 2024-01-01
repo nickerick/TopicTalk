@@ -4,6 +4,7 @@
 	import type { Message } from '../../../models/Message';
 	import { io } from 'socket.io-client';
 	import type { User } from '../../../models/User';
+	import { generateUser } from '$lib/utils.ts';
 
 	// Set header as current chatroom's topic
 	let topic = $page.params.topic;
@@ -20,13 +21,10 @@
 	// Connect to chat room
 	const socket = io('http://localhost:3000');
 
-	let newUser : User = {
-		senderColorHex: '#FF0000',
-		senderUsername: 'RedRhino',
-		topic: topic
-	}
+	let localUser : User = generateUser();
+	localUser.topic = topic;
 
-	socket.emit('join room', newUser);
+	socket.emit('join room', localUser);
 
 	socket.on('message', (newMessage: Message) => {
 		messages = [...messages, newMessage];
@@ -58,7 +56,7 @@
 
 		let newMessage: Message = {
 			content: messageInput,
-			sender: newUser,
+			sender: localUser,
 			isSystem: false
 		};
 
@@ -86,7 +84,7 @@
 		<div class="message-list" bind:this={messagesContainer}>
 			<div class="message">
 				<strong>
-					System: Joined topic as <span style="color: red;">RedRhino</span>
+					System: Joined topic as <span style="color: {localUser.senderColorHex};">{localUser.senderUsername}</span>
 				</strong>
 			</div>
 

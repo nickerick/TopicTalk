@@ -21,7 +21,7 @@ let users = new Map<String, User>();
 
 io.on('connection', (socket) => {
 	socket.on('join room', (user: User) => {
-		console.log(user.senderUsername + ' joined topic ' + user.topic);
+		console.log(user?.senderUsername + ' joined topic ' + user?.topic);
 		users.set(socket.id, user);
 
 		socket.join(user.topic);
