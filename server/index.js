@@ -12,9 +12,12 @@ const io = new Server(server, {
 		methods: ['GET', 'POST']
 	}
 });
+const port = process.env.PORT || 3000;
 
+// Serves Svelete build
 app.use(handler);
 
+// Maps sockets to users
 let users = new Map();
 
 io.on('connection', (socket) => {
@@ -49,6 +52,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-server.listen(3000, () => {
-	console.log('Started server on port 3000');
+server.listen(port, () => {
+	console.log('Started server on port ' + port);
 });
