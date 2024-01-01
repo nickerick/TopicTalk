@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { afterUpdate } from 'svelte';
+	import { afterUpdate, onDestroy } from 'svelte';
 	import type { Message } from '../../../models/Message';
+	import { io } from 'socket.io-client';
+	import type { User } from '../../../models/User';
 
 	// Set header as current chatroom's topic
 	let topic = $page.params.topic;
@@ -15,26 +17,67 @@
 
 	let messagesContainer: HTMLDivElement;
 
-	afterUpdate(() => {
-		// Auto scroll to bottom of messages
-		messagesContainer.scrollTop = messagesContainer.scrollHeight - messagesContainer.clientHeight;
+	// Connect to chat room
+	const socket = io('http://localhost:3000');
+
+	let newUser : User = {
+		senderColorHex: '#FF0000',
+		senderUsername: 'RedRhino',
+		topic: topic
+	}
+
+	socket.emit('join room', newUser);
+
+	socket.on('message', (newMessage: Message) => {
+		messages = [...messages, newMessage];
+	});
+
+	socket.on('user joined', (newUser: User) => {
+		let newMessage: Message = {
+			content: 'joined',
+			sender: newUser,
+			isSystem: true
+		};
+
+		messages = [...messages, newMessage];
+	});
+
+	socket.on('user left', (oldUser: User) => {
+		let newMessage: Message = {
+			content: 'left',
+			sender: oldUser,
+			isSystem: true
+		};
+
+		messages = [...messages, newMessage];
 	});
 
 	// Update list with user's new message and broadcast message to socket
 	function sendMessage() {
 		if (messageInput.length <= 0) return;
 
-		let obj: Message = {
+		let newMessage: Message = {
 			content: messageInput,
-			senderColorHex: '#FF0000',
-			senderUsername: 'RedRhino',
+			sender: newUser,
 			isSystem: false
 		};
 
-		messages = [...messages, obj];
+		socket.emit('message', messageInput);
+
+		messages = [...messages, newMessage];
 
 		messageInput = '';
 	}
+
+	afterUpdate(() => {
+		// Auto scroll to bottom of messages
+		messagesContainer.scrollTop = messagesContainer.scrollHeight - messagesContainer.clientHeight;
+	});
+
+	onDestroy(() => {
+		socket.disconnect();
+  	});
+
 </script>
 
 <div class="container">
@@ -46,23 +89,19 @@
 					System: Joined topic as <span style="color: red;">RedRhino</span>
 				</strong>
 			</div>
-			<!-- <div class="message">
-				<strong>YellowGiraffe:</strong>
-				mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-			</div> -->
 
 			{#each messages as message, i}
 				{#if message.isSystem}
 					<div class="message">
 						<strong
-							>System: <span style="color: {message.senderColorHex};">{message.senderUsername}</span
+							>System: <span style="color: {message.sender.senderColorHex};">{message.sender.senderUsername}</span
 							>
 							has {message.content} the topic</strong
 						>
 					</div>
 				{:else}
 					<div class="message">
-						<strong style="color: {message.senderColorHex};">{message.senderUsername}:</strong>
+						<strong style="color: {message.sender.senderColorHex};">{message.sender.senderUsername}:</strong>
 						{message.content}
 					</div>
 				{/if}
