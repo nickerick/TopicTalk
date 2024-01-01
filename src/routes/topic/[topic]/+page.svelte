@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { afterUpdate, onDestroy } from 'svelte';
-	import type { Message } from '../../../models/Message';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client';
-	import type { User } from '../../../models/User';
+	import { page } from '$app/stores';
 	import { generateUser } from '$lib/utils.ts';
+	import type { Message } from '../../../models/Message';
+	import type { User } from '../../../models/User';
 
 	// Set header as current chatroom's topic
 	let topic = $page.params.topic;
 	topic = topic.charAt(0).toUpperCase() + topic.slice(1);
 
-	// User's current input to be sent as a message
 	let messageInput: string = '';
 
 	// List of all messages in the user's current chatroom session
@@ -21,10 +20,7 @@
 	// Connect to chat room
 	const socket = io('http://localhost:3000');
 
-	let localUser : User = generateUser();
-	localUser.topic = topic;
-
-	socket.emit('join room', localUser);
+	let localUser: User;
 
 	socket.on('message', (newMessage: Message) => {
 		messages = [...messages, newMessage];
@@ -74,8 +70,14 @@
 
 	onDestroy(() => {
 		socket.disconnect();
-  	});
+	});
 
+	onMount(() => {
+		localUser = generateUser();
+		localUser.topic = topic;
+
+		socket.emit('join room', localUser);
+	});
 </script>
 
 <div class="container">
@@ -83,23 +85,30 @@
 	<div class="chatbox">
 		<div class="message-list" bind:this={messagesContainer}>
 			<div class="message">
-				<strong>
-					System: Joined topic as <span style="color: {localUser.senderColorHex};">{localUser.senderUsername}</span>
-				</strong>
+				{#if localUser != null}
+					<strong>
+						System: Joined topic as <span style="color: {localUser.senderColorHex};"
+							>{localUser.senderUsername}</span
+						>
+					</strong>
+				{/if}
 			</div>
 
 			{#each messages as message, i}
 				{#if message.isSystem}
 					<div class="message">
 						<strong
-							>System: <span style="color: {message.sender.senderColorHex};">{message.sender.senderUsername}</span
+							>System: <span style="color: {message.sender.senderColorHex};"
+								>{message.sender.senderUsername}</span
 							>
 							has {message.content} the topic</strong
 						>
 					</div>
 				{:else}
 					<div class="message">
-						<strong style="color: {message.sender.senderColorHex};">{message.sender.senderUsername}:</strong>
+						<strong style="color: {message.sender.senderColorHex};"
+							>{message.sender.senderUsername}:</strong
+						>
 						{message.content}
 					</div>
 				{/if}
@@ -160,8 +169,6 @@
 		max-width: 100%;
 		padding: 0.2em;
 		overflow-y: auto;
-		/* display: flex; */
-		/* flex-direction: column-reverse; */
 	}
 
 	.message-list::-webkit-scrollbar {
