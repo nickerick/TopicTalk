@@ -18,7 +18,8 @@
 	let messagesContainer: HTMLDivElement;
 
 	// Connect to chat room
-	const socket = io('http://localhost:3000');
+	let port = process.env.PORT || 3000;
+	const socket = io('http://localhost:' + port);
 
 	let localUser: User;
 
