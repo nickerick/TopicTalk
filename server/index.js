@@ -1,26 +1,24 @@
 import express from 'express';
-import { createServer } from 'http';
+import http from 'http';
 import { Server } from 'socket.io';
-import { User } from './models/User';
-import { Message } from './models/Message';
+import { handler } from '../build/handler.js';
+import { Message } from './models/Message.js';
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const server = http.createServer(app);
+const io = new Server(server, {
 	cors: {
 		origin: 'http://localhost:5173',
 		methods: ['GET', 'POST']
 	}
 });
 
-app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/index.html');
-});
+app.use(handler);
 
-let users = new Map<String, User>();
+let users = new Map();
 
 io.on('connection', (socket) => {
-	socket.on('join room', (user: User) => {
+	socket.on('join room', (user) => {
 		console.log(user?.senderUsername + ' joined topic ' + user?.topic);
 		users.set(socket.id, user);
 
@@ -33,11 +31,7 @@ io.on('connection', (socket) => {
 
 		if (user == undefined) return;
 
-		let message: Message = {
-			content: messageText,
-			sender: user,
-			isSystem: false
-		};
+		let message = new Message(messageText, user, false);
 
 		console.log(user.senderUsername + ' sent ' + message.content);
 
@@ -55,4 +49,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-httpServer.listen(3000);
+server.listen(3000, () => {
+	console.log('Started server on port 3000');
+});
