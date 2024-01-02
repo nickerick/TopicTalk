@@ -164,7 +164,7 @@ Gabe Pederson - gmartinp03@outlook.com - [Personal Website](https://gabepederson
 
 #### Setup
 
-```
+```bash
 # install client dependencies
 npm i
 
@@ -174,7 +174,7 @@ npm i --prefix server
 
 #### Development
 
-```
+```bash
 # serve Svelte client
 npm run dev
 
