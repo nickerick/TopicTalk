@@ -13,9 +13,12 @@ const io = new Server(server, {
 	}
 });
 const port = process.env.PORT || 3000;
+const isStandalone = process.argv.includes('--standalone');
 
 // Serves Svelete build
-app.use(handler);
+if (!isStandalone) {
+	app.use(handler);
+}
 
 // Maps sockets to users
 let users = new Map();

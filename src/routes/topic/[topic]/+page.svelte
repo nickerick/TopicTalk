@@ -11,15 +11,16 @@
 	topic = topic.charAt(0).toUpperCase() + topic.slice(1);
 
 	let messageInput: string = '';
-
+	
 	// List of all messages in the user's current chatroom session
 	let messages: Message[] = [];
 
 	let messagesContainer: HTMLDivElement;
 
 	// Connect to chat room
-	// let port = process.env.PORT || 3000;
-	const socket = io('/');
+	let developmentMode: boolean = import.meta.env.MODE === 'development';
+	let serverUrl: string = developmentMode ? 'http://localhost:3000' : '/';
+	const socket = io(serverUrl);
 
 	let localUser: User;
 
